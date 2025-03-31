@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.28;
 
-import {Script} from "forge-std/Script.sol";
+import {Script, console} from "forge-std/Script.sol";
 import {ChainLinkStaking} from "../src/ChainlinkStakingPool.sol";
 
 contract DeployChainlinkStaking is Script {
-    struct {
+    struct NetworkConfig {
         address vrfCoordinator;
-        uint64 subscriptId;
+        uint64 subscriptionId;
         bytes32 gasLane;
         uint32 callbackGasLimit;
         uint256 entryFee;
         uint256 stakingDuration;
-        uint245 deployerKey;
+        uint256 deployerKey;
     }
 
      // Map of chain IDs to their network configurations
@@ -26,7 +26,7 @@ contract DeployChainlinkStaking is Script {
             gasLane: 0x8af398995b04c28e9951adb9721ef74c74f93e6a478f39e7e0777be13527e7ef, // 200 gwei premium
             callbackGasLimit: 500000, // 500k gas
             entryFee: 0.01 ether,
-            lotteryDuration: 5 minutes,
+            stakingDuration: 5 minutes,
             deployerKey: vm.envUint("PRIVATE_KEY")
         });
 
@@ -37,7 +37,7 @@ contract DeployChainlinkStaking is Script {
             gasLane: 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c, // 150 gwei premium
             callbackGasLimit: 500000, // 500k gas
             entryFee: 0.001 ether,
-            lotteryDuration: 5 minutes,
+            stakingDuration: 5 minutes,
             deployerKey: vm.envUint("PRIVATE_KEY")
         });
 
@@ -45,6 +45,28 @@ contract DeployChainlinkStaking is Script {
     }
 
     function run() external {
+        uint256 chainId  = block.chainid;
         
+        require(networkConfigs[chainId].vrfCoordinator != address(0), "Chain not supported");
+
+        NetworkConfig memory config = networkConfigs[chainId];
+
+        vm.startBroadcast(config.deployerKey);
+
+        ChainLinkStaking staking = new ChainLinkStaking(
+            config.vrfCoordinator,
+            config.subscriptionId,
+            config.gasLane,
+            config.callbackGasLimit,
+            config.entryFee,
+            config.stakingDuration
+        );
+
+        vm.stopBroadcast();
+
+        console.log("ChainlinkLottery deployed to: ", address(staking));
+        console.log("Chain ID: ", chainId);
+        console.log("Entry Fee: ", config.entryFee);
+        console.log("Lottery Duration: ", config.stakingDuration);
     }
 }
