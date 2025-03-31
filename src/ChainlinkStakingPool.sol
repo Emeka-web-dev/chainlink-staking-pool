@@ -5,7 +5,7 @@ import {VRFCoordinatorV2Interface} from "@chainlink/vrf/interfaces/VRFCoordinato
 import {VRFConsumerBaseV2} from "@chainlink/vrf/VRFConsumerBaseV2.sol";
 import {AutomationCompatibleInterface} from "@chainlink/automation/interfaces/AutomationCompatibleInterface.sol";
 
-abstract contract ChainLinkStaking is VRFConsumerBaseV2, AutomationCompatibleInterface {
+contract ChainLinkStaking is VRFConsumerBaseV2, AutomationCompatibleInterface {
     enum StakingStatus {
         ACTIVE,
         INACTIVE
@@ -81,7 +81,7 @@ abstract contract ChainLinkStaking is VRFConsumerBaseV2, AutomationCompatibleInt
 
         stakingState = StakingStatus.INACTIVE;
 
-        uint requestId = vrfCoordinator.requestRamdomWords(
+        uint requestId = vrfCoordinator.requestRandomWords(
             gasLane,
             subscriptionId,
             REQUEST_CONFIRMATIONS,
@@ -103,7 +103,7 @@ abstract contract ChainLinkStaking is VRFConsumerBaseV2, AutomationCompatibleInt
 
         uint256 prize = address(this).balance;
 
-        players = new address payable[](0);
+        stakers = new address payable[](0);
         stakingState = StakingStatus.ACTIVE;
         lastStakedAt = block.timestamp;
 
@@ -112,7 +112,7 @@ abstract contract ChainLinkStaking is VRFConsumerBaseV2, AutomationCompatibleInt
 
         emit WinnerPicked(winner, prize);
         emit StakeRestarted(block.timestamp);
-    };
+    }
 
     // Get number of players
     function getNumberOfPlayers() external view returns (uint) {
