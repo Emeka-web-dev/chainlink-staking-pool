@@ -18,7 +18,7 @@ contract DeployChainlinkStaking is Script {
      // Map of chain IDs to their network configurations
     mapping(uint256 => NetworkConfig) public networkConfigs;
 
-    function setup() public {
+    function setUp() public {
         // Ethereum Mainnet configuration
         networkConfigs[1] = NetworkConfig({
             vrfCoordinator: 0x271682DEB8C4E0901D1a1550aD2e64D568E69909, // Mainnet VRF Coordinator V2
